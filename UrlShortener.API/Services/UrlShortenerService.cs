@@ -1,25 +1,40 @@
-﻿namespace UrlShortener.API.Services;
+﻿using Microsoft.EntityFrameworkCore;
+using UrlShortener.API.Infrastructure;
+
+namespace UrlShortener.API.Services;
 
 public class UrlShortenerService
 {
-    private const int NumberOfCharInShortLink = 7;
+    public const int NumberOfCharInShortLink = 7;
     private const string Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
     private readonly Random _random = new();
+    private readonly AppDbContext _dbContext;
 
-    public string GenerateUniqueCode()
+    public UrlShortenerService(AppDbContext dbContext)
+    {
+        _dbContext = dbContext;
+    }
+
+    public async Task<string> GenerateUniqueCode()
     {
         var codeChars = new char[NumberOfCharInShortLink];
 
-        for (var i = 0; i < NumberOfCharInShortLink; i++)
+        while (true)
         {
-            var randomindex = _random.Next(Alphabet.Length - 1);
+            for (var i = 0; i < NumberOfCharInShortLink; i++)
+            {
+                var randomindex = _random.Next(Alphabet.Length - 1);
 
-            codeChars[i] = Alphabet[randomindex];
+                codeChars[i] = Alphabet[randomindex];
+            }
+
+            var code = new string(codeChars);
+
+            if (!await _dbContext.ShortenedUrls.AnyAsync(s => s.Code == code))
+            {
+                return code;
+            }
         }
-
-        var code = new string(codeChars);
-
-        return code;
     }
 }
