@@ -11,7 +11,7 @@ services:
       - "8081:443"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__Database=Host=postgres-db;Port=5432;Database=UrlShortenerDb;Username=postgres;Password=postgres
+      - ConnectionStrings__DefaultConnection=Host=postgres-db;Port=5432;Database=UrlShortenerDb;Username=postgres;Password=0902
     depends_on:
       - postgres-db
 
